@@ -3,13 +3,13 @@
 
 Give a short, 1-2 paragraph description of your project. Focus on the code, not the theoretical / substantive / academic side of things. 
 
-This project:\
+This project:
 
-1. Collects Portuguese-language newspaper articles about protests in Brazil between March-August 2014 via a batch download from LexisNexis Academic\
+1. Collects Portuguese-language newspaper articles about protests in Brazil between March-August 2014 via a batch download from LexisNexis Academic
 
-2. Transforms the 1,429 articles into a clean and useable database\
+2. Transforms the 1,429 articles into a clean and useable database
 
-3. Generates metadata to serve as a unique(ish) identifiers about each protest event (city, date) in order to match each description with a separate database of protest articles\
+3. Generates metadata to serve as a unique(ish) identifiers about each protest event (city, date) in order to match each description with a separate database of protest articles
 
 4. Conducts and reports findings of an inter-coder reliability test (3 raters) performed on a stratified sample of 418 protest events
 
