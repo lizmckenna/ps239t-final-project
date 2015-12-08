@@ -1,5 +1,5 @@
 ---
-title: "Final project: 03_clean_and_categorize"
+title: "Final project: 03_clean, merge, match"
 author: "Liz McKenna"
 date: "Fall 2015"
 output: upload R script to github repo
@@ -38,7 +38,7 @@ salvador <- subset(protest_cities_full, select=c(publication, date, title, lengt
 salvador$salvador <-gsub("1", "salvador", salvador$salvador)
 colnames(salvador)[6] <- "city" 
 
-#rinse and repeat
+#rinse and repeat for each city
 belo_horizonte <- subset(protest_cities_full, select=c(publication, date, title, length, text, belo_horizonte), belo_horizonte==1)
 belo_horizonte$belo_horizonte <-gsub("1", "belo_horizonte", belo_horizonte$belo_horizonte)
 colnames(belo_horizonte)[6] <- "city" 
@@ -76,7 +76,7 @@ porto_alegre$porto_alegre <-gsub("1", "porto_alegre", porto_alegre$porto_alegre)
 colnames(porto_alegre)[6] <- "city" 
 
 
-#use smartbind from the gtools library to put them all into one dataframe; allows for an efficient rbind of data frames even when column names don't match
+#put the newly cleaned data into one dataframe; smartbind allows for an efficient rbind of data frames even when column names don't match
 protests <- smartbind(salvador, belo_horizonte, campinas, brasilia, rio, fortaleza, sao_paulo, curitiba, recife, porto_alegre)
 sum(is.na(protests$city))
 
