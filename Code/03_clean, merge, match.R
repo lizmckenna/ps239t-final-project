@@ -1,5 +1,5 @@
 ---
-title: "Final project: 03_clean_and_categorize"
+title: "Final project: 03_clean, merge, match"
 author: "Liz McKenna"
 date: "Fall 2015"
 output: "upload R script to github repo"
@@ -12,13 +12,8 @@ rm(list=ls())
 
 
 ### load packages
-library(tm) # framework for text mining
-library(RTextTools) # a machine learning package for text classification written in R
-library(qdap) # Quantiative discourse analysis of transcripts
-library(qdapDictionaries)
 library(dplyr) # Data preparation and pipes $>$
 library(ggplot2) # for plotting word frequencies
-library(SnowballC) # for stemming
 library(utils)
 library(gtools)
 
@@ -34,9 +29,22 @@ protest_cities_full <- read.csv("Data/protest_cities.csv", header=TRUE, encoding
 salvador <- subset(protest_cities_full, select=c(publication, date, title, length, text, salvador), salvador==1)
 
 #replace 1s with the name of the city; rename column to "city" so that we can rbind 'em all later.
-#there is most definitely a way to do this with a function/for loop...here's my old-fashioned way:
+#there is most definitely a way to do this with a function*...here's my old-fashioned way:
 salvador$salvador <-gsub("1", "salvador", salvador$salvador)
 colnames(salvador)[6] <- "city" 
+
+
+#*tried to write a function...did not work.
+cities<- c("salvador", "belo_horizonte", "sao_paulo", "rio", "porto_alegre", "campinas", "curitiba", "fortaleza", "recife", "brasilia")
+
+subset.cities <- function(x){
+  city <- as.character(protest_cities_full$city[x])
+  x <- subset(protest_cities_full, select=c(publication, date, title, length, text, x), x==1)
+  x$x <- gsub("1", "x", x$x)
+  colnames(x)[6] <- "city"
+  return (city)
+}
+
 
 #rinse and repeat
 belo_horizonte <- subset(protest_cities_full, select=c(publication, date, title, length, text, belo_horizonte), belo_horizonte==1)
@@ -119,7 +127,7 @@ sum(is.na(protests$date)) #82; gonna keep these around for now
 
 
 #R kept crashing when I toggled over to the full df of metadata + articles; so I'll start by
-#subetting to clean *only* the date column sch that i can convert it into a julian date
+#subetting to clean *only* the date column 
 date_only <- subset(protests, select=c(date))
 
 date_only$date <- gsub("March","Mar14",date_only$date)
@@ -131,18 +139,6 @@ date_only$date <- gsub("August","Aug14",date_only$date)
 date_only$date <- gsub("1414","14",date_only$date)
 date_only$date <- gsub(" ","",date_only$date)
 
-
-
-''''''
-date_only["julian_date"] <- NA
-date_only$julian_date <- as.date (date_only$date)
-sum(is.na(date_only$julian_date)) #82, still
-''''''
-
-#reassign cleaned observations back to the original df
-protests["julian_date"] <- NA # create a new column filled with NA
-protests$date <- date_only$date
-protests$julian_date <- date_only$julian_date
 
 #load second dataframe (folha protests) with which lexisnexis articles will be matched
 folha <- read.csv("Data/folha.csv", header=TRUE, encoding = "UTF-8")
@@ -159,112 +155,13 @@ folha$date <- gsub("Jul", "Jul14", folha$date)
 folha$date <- gsub("Aug", "Aug14", folha$date)
 folha$date <- gsub(" ", "", folha$date)
 
-#convert newly standardized dates to julians
-folha["julian_date"] <- NA # create a new column filled with NA
-folha$julian_date <- as.date(folha$date)
 
-mydata <- merge(folha, protests, by=c("city","date")) 
+#i first tried merging by both city and date. unfortunately, there seemed to be quite a few mismatches.
+#that is, articles that had the same date and the same city were not necessarily about the same protest event.
+#so i'm going to subset, rbind, and then sample by city (04_sample_for_irr).
 
-write.csv(mydata,"Data/analysis_dataset.csv",row.names = F) # write all
+protests2 <- subset(protests,select=c(city, publication, date, text))
+merged_data <- rbind(folha, protests2) 
 
-#subset to a stratified sample of articles (weighted by city observations)
-
-#here was my attempt to write a function to do this but alas, it didn't work
-irr.sample <- function(x,y)
-  {
-  city.subset <- subset(mydata, city=='x')
-  city.irr <- city.subset[sample(1:nrow(city.subset), y, replace = TRUE)]
-  }
-
-
-bh2 <- irr.sample(belo_horizonte, 5) 
-
-bh.subset = subset(mydata, city == 'belo_horizonte')
-bh.irr <- bh_sub[sample(1:nrow(bh_sub), 5,replace=FALSE),]
-
-country.standard(countries$Key[i],countries$Value[i],women)  
-# Apply function to all countries in the key-value list
-n <- nrow(countries)
-for(i in 1:n){
-  women$COUNTRY_FINAL <- country.standard(countries$Key[i],countries$Value[i],women)
-}
-sum(is.na(women$COUNTRY_FINAL)) # 15208
-
-
-
-    (grepl(x, z$COUNTRY_TOP_PERCENT,ignore.case=T))
-  z$COUNTRY_FINAL[country.index] <- as.character(y)
-  return(z$COUNTRY_FINAL)
-  }
-
-bh_sub = subset(mydata, city == 'belo_horizonte')
-bh_irr <- bh_sub[sample(1:nrow(bh_sub), 5,replace=FALSE),]
-
-bras_sub = subset(mydata, city == 'brasilia')
-bras_irr <- bras_sub[sample(1:nrow(bras_sub), 5,replace=FALSE),]
-
-camp_sub = subset(mydata, city == 'campinas')
-camp_irr <- camp_sub[sample(1:nrow(camp_sub), 5,replace=FALSE),]
-
-bh_sub = subset(mydata, city == 'belo_horizonte')
-bh_irr <- bh_sub[sample(1:nrow(bh_sub), 5,replace=FALSE),]
-
-Belo Horizonte	5
-Brasília	5
-Campinas	2
-Curitiba	2
-Fortaleza	4
-Porto Alegre	4
-Recife	4
-Rio de Janeiro	8
-Salvador	4
-São Paulo	8
-
-all_protests <- smartbind(folha, protests) #1,428 observations of 6 variables
-
-all_protests$date <-gsub(" March", "Mar14", all_protests$date)
-all_protests$date <-gsub(" Apr", "Apr14", all_protests$date)
-all_protests$date <-gsub(" May", "May14", all_protests$date)
-all_protests$date <-gsub(" Jun", "Jun14", all_protests$date)
-all_protests$date <-gsub(" Jul", "Jul14", all_protests$date)
-all_protests$date <-gsub(" August", "Aug14", all_protests$date)
-all_protests$date <-gsub("4e", "4", all_protests$date)
-all_protests$date <-gsub("4y", "4", all_protests$date)
-all_protests$date <-gsub("4il", "4", all_protests$date)
-
-all_protests["julian_date"] <- NA # create a new column filled with NA
-all_protests$julian_date <- as.date(all_protests$date)
-
-write.csv(all_protests,"Data/all_protests.csv",row.names = F) # write all
-
-#############################
-######### DETOUR ############
-#############################
-
-##conversion to Julian dates was not working on whole dataframe.
-#subsetting to one city to see what the problem was:
-
-test.df <- all_protests
-salvador2 <- subset(test.df, select=c(date, publication, city), city=="salvador")
-sum(is.na(salvador2$date))
-
-#this was the problem: errant letters after the year:
-salvador2$date <-gsub("4e", "4", salvador2$date)
-salvador2$date <-gsub("4y", "4", salvador2$date)
-salvador2$date <-gsub("4il", "4", salvador2$date)
-
-#now add a new column with the julian date version
-library(date)
-salvador2["julian_date"] <- NA # create a new column filled with NA
-salvador2$julian_date <- as.date(salvador2$date)
-
-
-library(plyr)
-n.protests <- ddply(.data=all_protests, .variables=.(city),count = summarize(date, na.rm=T))
-n.protests
-which(is.na(merged$region))
-
-
-
-#### WRITE FILES #####
-write.csv(all_protests,"Data/all_protests.csv",row.names = F) # write all
+#write merged csv
+write.csv(merged_data,"Data/analysis_dataset.csv",row.names = F) # write all
