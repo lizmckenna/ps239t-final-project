@@ -131,30 +131,26 @@ date_only$date <- gsub("August","Aug14",date_only$date)
 date_only$date <- gsub("1414","14",date_only$date)
 date_only$date <- gsub(" ","",date_only$date)
 
+
+
+''''''
+date_only["julian_date"] <- NA
+date_only$julian_date <- as.date (date_only$date)
+sum(is.na(date_only$julian_date)) #82, still
+''''''
+
 #reassign cleaned observations back to the original df
-protests$date <- date_only$date
-
 protests["julian_date"] <- NA # create a new column filled with NA
-protests$julian_date <- as.date(protests$date)
-
-
-###
-folha$date <- gsub("Apr", "Apr14", folha$date)
-folha$date <- gsub("May", "May14", folha$date)
-folha$date <- gsub("Jun", "Jun14", folha$date)
-folha$date <- gsub("Jul", "Jul14", folha$date)
-folha$date <- gsub("Aug", "Aug14", folha$date)
-folha$date <- gsub(" ", "", folha$date)
-
-
+protests$date <- date_only$date
+protests$julian_date <- date_only$julian_date
 
 #load second dataframe (folha protests) with which lexisnexis articles will be matched
 folha <- read.csv("Data/folha.csv", header=TRUE, encoding = "UTF-8")
+folha$city <- as.character(folha$city)
 folha$date <- as.character(folha$date)
 folha$date <-gsub("-", "", folha$date)
-folha$city <- as.character(folha$city)
 
-
+#clean and standardize date observations
 folha$date <- gsub("Mar","Mar14",folha$date)
 folha$date <- gsub("Apr", "Apr14", folha$date)
 folha$date <- gsub("May", "May14", folha$date)
@@ -163,12 +159,69 @@ folha$date <- gsub("Jul", "Jul14", folha$date)
 folha$date <- gsub("Aug", "Aug14", folha$date)
 folha$date <- gsub(" ", "", folha$date)
 
+#convert newly standardized dates to julians
 folha["julian_date"] <- NA # create a new column filled with NA
 folha$julian_date <- as.date(folha$date)
 
-
 mydata <- merge(folha, protests, by=c("city","date")) 
+
+write.csv(mydata,"Data/analysis_dataset.csv",row.names = F) # write all
+
+#subset to a stratified sample of articles (weighted by city observations)
+
+#here was my attempt to write a function to do this but alas, it didn't work
+irr.sample <- function(x,y)
+  {
+  city.subset <- subset(mydata, city=='x')
+  city.irr <- city.subset[sample(1:nrow(city.subset), y, replace = TRUE)]
+  }
+
+
+bh2 <- irr.sample(belo_horizonte, 5) 
+
+bh.subset = subset(mydata, city == 'belo_horizonte')
+bh.irr <- bh_sub[sample(1:nrow(bh_sub), 5,replace=FALSE),]
+
+country.standard(countries$Key[i],countries$Value[i],women)  
+# Apply function to all countries in the key-value list
+n <- nrow(countries)
+for(i in 1:n){
+  women$COUNTRY_FINAL <- country.standard(countries$Key[i],countries$Value[i],women)
+}
+sum(is.na(women$COUNTRY_FINAL)) # 15208
+
+
+
+    (grepl(x, z$COUNTRY_TOP_PERCENT,ignore.case=T))
+  z$COUNTRY_FINAL[country.index] <- as.character(y)
+  return(z$COUNTRY_FINAL)
+  }
+
+bh_sub = subset(mydata, city == 'belo_horizonte')
+bh_irr <- bh_sub[sample(1:nrow(bh_sub), 5,replace=FALSE),]
+
+bras_sub = subset(mydata, city == 'brasilia')
+bras_irr <- bras_sub[sample(1:nrow(bras_sub), 5,replace=FALSE),]
+
+camp_sub = subset(mydata, city == 'campinas')
+camp_irr <- camp_sub[sample(1:nrow(camp_sub), 5,replace=FALSE),]
+
+bh_sub = subset(mydata, city == 'belo_horizonte')
+bh_irr <- bh_sub[sample(1:nrow(bh_sub), 5,replace=FALSE),]
+
+Belo Horizonte	5
+Brasília	5
+Campinas	2
+Curitiba	2
+Fortaleza	4
+Porto Alegre	4
+Recife	4
+Rio de Janeiro	8
+Salvador	4
+São Paulo	8
+
 all_protests <- smartbind(folha, protests) #1,428 observations of 6 variables
+
 all_protests$date <-gsub(" March", "Mar14", all_protests$date)
 all_protests$date <-gsub(" Apr", "Apr14", all_protests$date)
 all_protests$date <-gsub(" May", "May14", all_protests$date)
