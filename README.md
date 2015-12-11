@@ -1,8 +1,6 @@
 
 ## Short Description
 
-Give a short, 1-2 paragraph description of your project. Focus on the code, not the theoretical / substantive / academic side of things. 
-
 This project:
 
 1. Collects Portuguese-language newspaper articles about protests in Brazil between March-August 2014 via a batch download from LexisNexis Academic
@@ -11,7 +9,7 @@ This project:
 
 3. Generates metadata to serve as a unique(ish) identifiers about each protest event (city, date) in order to match each description with a separate database of protest articles
 
-4. Conducts and reports findings of an inter-coder reliability test (3 raters) performed on a stratified sample of 418 protest events
+4. Conducts inter-coder reliability test (3 raters) performed on a stratified sample of 418 protest events
 
 ## Dependencies
 
@@ -20,6 +18,7 @@ List what software your code depends on, as well as version numbers, like so:.
 1. LexisNexis Academic
 2. R version 3.2.2
 3. Python 2.7, Anaconda distribution.
+4. Qualtrics
 
 ## Files
 
@@ -48,4 +47,5 @@ List all other files contained in the repo, along with a brief description of ea
 
 ## More Information
 
-Include any other details you think your user might need to reproduce your results. You may also include other information such as your contact information, credits, etc.
+contact - Liz McKenna (emckenna@berkeley.edu)
+many, many thanks to Rochelle (@rochelleterman) and Frannie (@franniez) for all your help on the .py code
