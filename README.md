@@ -22,15 +22,6 @@ This project:
 
 List all other files contained in the repo, along with a brief description of each one, like so:
 
-### Data
-
-1. polity.csv: The PolityVI dataset, available here: http://www.systemicpeace.org/inscrdata.html
-2. nyt.csv: Contains data from the New York Times API collected via collect-nyt.ipynb . Includes information on all articles containing the term "Programmer Cat", 1980-2010.
-3. analysis-dataset.csv: The final Analysis Dataset derived from the raw data above. It includes country-year values for all UN countries 1980-2010, with observations for the following variables: 
-    - *ccode*: Correlates of War numeric code for country observation
-    - *year*: Year of observation
-    - *polity*: PolityVI score
-    - *nyt*: Number of New York Times articles about "Programmer Cat"
 
 ### Code
 
@@ -58,6 +49,8 @@ all_protests.csv: merged version of all LN articles
 folha.csv: 418 protests covered by the newspaper Folha de São Paulo during the same time interval
 
 irr_sample.csv: stratified sample (proportional to city) to use in IRR tests
+
+qualtrics_text.htm: cleaned up stratified sample of 45 protests to feed to qualtrics
 
 ### Results
 
